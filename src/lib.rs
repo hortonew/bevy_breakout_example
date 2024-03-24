@@ -1,5 +1,3 @@
-//! A simplified implementation of the classic game "Breakout".
-
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
 mod movement;
@@ -7,9 +5,6 @@ mod settings;
 mod stepping;
 mod structures;
 
-use movement::{
-    apply_velocity, check_for_collisions, move_paddle, move_paddle_with_touch, play_collision_sound,
-};
 use settings::{
     BACKGROUND_COLOR, BALL_COLOR, BALL_DIAMETER, BALL_SPEED, BALL_STARTING_POSITION, BOTTOM_WALL,
     BRICK_COLOR, BRICK_SIZE, GAP_BETWEEN_BRICKS, GAP_BETWEEN_BRICKS_AND_CEILING,
@@ -45,11 +40,11 @@ pub fn run_game() {
         .add_systems(
             FixedUpdate,
             (
-                apply_velocity,
-                move_paddle,
-                move_paddle_with_touch,
-                check_for_collisions,
-                play_collision_sound,
+                movement::apply_velocity,
+                movement::move_paddle,
+                movement::move_paddle_with_touch,
+                movement::check_for_collisions,
+                movement::play_collision_sound,
             )
                 .chain(),
         )
