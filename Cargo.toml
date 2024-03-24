@@ -1,0 +1,34 @@
+[package]
+name = "breakout"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.13.1"
+
+[lib]
+name = "breakout"
+path = "src/lib.rs"
+crate-type = [
+    "staticlib",
+    "cdylib",    # needed for Android
+    "rlib",      # rlib needed for running locally
+]
+
+[[bin]]
+name = "breakout"
+path = "src/main.rs"
+
+[package.metadata.android]
+package = "org.breakout.example"
+apk_name = "breakout"
+strip = "strip"
+# see https://github.com/rust-mobile/cargo-apk
+assets = "assets"
+build_targets = ["aarch64-linux-android", "armv7-linux-androideabi"]
+
+[package.metadata.android.sdk]
+target_sdk_version = 31
+
+[package.metadata.android.application]
+label = "Bevy Breakout"
