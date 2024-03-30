@@ -1,1 +1,5 @@
 /target
+webbuild.zip
+webbuild/assets/
+webbuild/out/
+out/

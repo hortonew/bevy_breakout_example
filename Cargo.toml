@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 bevy = "0.13.1"
+bevy_embedded_assets = "0.10.2"
 
 [lib]
 name = "breakout"
@@ -32,3 +33,8 @@ target_sdk_version = 31
 
 [package.metadata.android.application]
 label = "Bevy Breakout"
+
+# This is for quick testing, used for debug builds
+[package.metadata.android.signing.release]
+path = "/Users/erikhorton/.android/debug.keystore"
+keystore_password = "android"

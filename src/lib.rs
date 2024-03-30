@@ -1,16 +1,17 @@
+use bevy::asset::AssetMetaCheck;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-
+// use bevy_embedded_assets::EmbeddedAssetPlugin;
+mod implementations;
 mod movement;
 mod settings;
 mod stepping;
 mod structures;
-
 use settings::{
     BACKGROUND_COLOR, BALL_COLOR, BALL_DIAMETER, BALL_SPEED, BALL_STARTING_POSITION, BOTTOM_WALL,
     BRICK_COLOR, BRICK_SIZE, GAP_BETWEEN_BRICKS, GAP_BETWEEN_BRICKS_AND_CEILING,
     GAP_BETWEEN_BRICKS_AND_SIDES, GAP_BETWEEN_PADDLE_AND_BRICKS, GAP_BETWEEN_PADDLE_AND_FLOOR,
     INITIAL_BALL_DIRECTION, LEFT_WALL, PADDLE_COLOR, PADDLE_SIZE, RIGHT_WALL, SCOREBOARD_FONT_SIZE,
-    SCOREBOARD_TEXT_PADDING, SCORE_COLOR, TEXT_COLOR, TOP_WALL, WALL_COLOR, WALL_THICKNESS,
+    SCOREBOARD_TEXT_PADDING, SCORE_COLOR, TEXT_COLOR, TOP_WALL,
 };
 use structures::{
     Ball, Brick, Collider, CollisionEvent, CollisionSound, Paddle, Scoreboard, ScoreboardUi,
@@ -24,7 +25,18 @@ pub fn main() {
 
 pub fn run_game() {
     App::new()
+        .insert_resource(AssetMetaCheck::Never) // set for not generating .meta files for itch.io
+        // .add_plugins((EmbeddedAssetPlugin::default(), DefaultPlugins))
         .add_plugins(DefaultPlugins)
+        // .add_plugins(DefaultPlugins.set(WindowPlugin {
+        //     primary_window: Some(Window {
+        //         window_level: bevy::window::WindowLevel::AlwaysOnTop,
+        //         // make the window auto resize to fit the screen it's in
+        //         mode: bevy::window::WindowMode::BorderlessFullscreen,
+        //         ..default()
+        //     }),
+        //     ..default()
+        // }))
         .add_plugins(
             stepping::SteppingPlugin::default()
                 .add_schedule(Update)
@@ -50,61 +62,6 @@ pub fn run_game() {
         )
         .add_systems(Update, (update_scoreboard, bevy::window::close_on_esc))
         .run();
-}
-
-impl WallLocation {
-    fn position(&self) -> Vec2 {
-        match self {
-            WallLocation::Left => Vec2::new(LEFT_WALL, 0.),
-            WallLocation::Right => Vec2::new(RIGHT_WALL, 0.),
-            WallLocation::Bottom => Vec2::new(0., BOTTOM_WALL),
-            WallLocation::Top => Vec2::new(0., TOP_WALL),
-        }
-    }
-
-    fn size(&self) -> Vec2 {
-        let arena_height = TOP_WALL - BOTTOM_WALL;
-        let arena_width = RIGHT_WALL - LEFT_WALL;
-        // Make sure we haven't messed up our constants
-        assert!(arena_height > 0.0);
-        assert!(arena_width > 0.0);
-
-        match self {
-            WallLocation::Left | WallLocation::Right => {
-                Vec2::new(WALL_THICKNESS, arena_height + WALL_THICKNESS)
-            }
-            WallLocation::Bottom | WallLocation::Top => {
-                Vec2::new(arena_width + WALL_THICKNESS, WALL_THICKNESS)
-            }
-        }
-    }
-}
-
-impl WallBundle {
-    // This "builder method" allows us to reuse logic across our wall entities,
-    // making our code easier to read and less prone to bugs when we change the logic
-    fn new(location: WallLocation) -> WallBundle {
-        WallBundle {
-            sprite_bundle: SpriteBundle {
-                transform: Transform {
-                    // We need to convert our Vec2 into a Vec3, by giving it a z-coordinate
-                    // This is used to determine the order of our sprites
-                    translation: location.position().extend(0.0),
-                    // The z-scale of 2D objects must always be 1.0,
-                    // or their ordering will be affected in surprising ways.
-                    // See https://github.com/bevyengine/bevy/issues/4149
-                    scale: location.size().extend(1.0),
-                    ..default()
-                },
-                sprite: Sprite {
-                    color: WALL_COLOR,
-                    ..default()
-                },
-                ..default()
-            },
-            collider: Collider,
-        }
-    }
 }
 
 // Add the game's entities to our world
