@@ -9,7 +9,6 @@ pub const RIGHT_WALL: f32 = 450.;
 pub const BOTTOM_WALL: f32 = -300.;
 pub const TOP_WALL: f32 = 300.;
 
-pub const BRICK_SIZE: Vec2 = Vec2::new(100., 30.);
 // These values are exact
 pub const GAP_BETWEEN_PADDLE_AND_BRICKS: f32 = 270.0;
 pub const GAP_BETWEEN_BRICKS: f32 = 5.0;
