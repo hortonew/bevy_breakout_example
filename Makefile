@@ -30,6 +30,17 @@ apk_release_debug:
 apk_release:
 	cargo apk build -p $(APK_NAME) --release --lib
 
+npx:
+	npx serve webbuild
+
+wasm_run:
+	cargo build --release --target wasm32-unknown-unknown
+	rm -rf ./webbuild/out/
+	rm -rf ./webbuild/assets/
+	wasm-bindgen --out-dir ./webbuild/out --target web ./target/wasm32-unknown-unknown/release/$(PKG_NAME).wasm
+	cp -r assets ./webbuild/
+	npx serve webbuild
+
 wasm_release:
 	cargo build --release --target wasm32-unknown-unknown
 	rm -rf ./webbuild/out/

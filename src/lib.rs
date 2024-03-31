@@ -1,4 +1,5 @@
 use bevy::asset::AssetMetaCheck;
+use bevy::input::common_conditions::input_toggle_active;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle, window::WindowResized};
 // use bevy_embedded_assets::EmbeddedAssetPlugin;
 mod implementations;
@@ -6,6 +7,7 @@ mod movement;
 mod settings;
 mod stepping;
 mod structures;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use settings::{
     BACKGROUND_COLOR, BALL_COLOR, BALL_DIAMETER, BALL_SPEED, BALL_STARTING_POSITION, BRICK_COLOR,
     GAP_BETWEEN_BRICKS, GAP_BETWEEN_BRICKS_AND_CEILING, GAP_BETWEEN_BRICKS_AND_SIDES,
@@ -19,7 +21,7 @@ use structures::{
 };
 
 #[bevy_main]
-pub fn main() {
+fn main() {
     run_game();
 }
 
@@ -49,6 +51,7 @@ pub fn run_game() {
                 .add_schedule(FixedUpdate)
                 .at(Val::Percent(35.0), Val::Percent(50.0)),
         )
+        .add_plugins(WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::F1)))
         .insert_resource(Scoreboard { score: 0 })
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_event::<CollisionEvent>()
@@ -64,6 +67,7 @@ pub fn run_game() {
                 movement::move_paddle_with_touch,
                 movement::check_for_collisions,
                 movement::play_collision_sound,
+                //update_brick_size_based_on_window_size,
             )
                 .chain(),
         )
@@ -153,7 +157,7 @@ fn setup(
 
     // Bricks
     let total_width_of_bricks =
-        (wall_positions.right_wall - wall_positions.left_wall) - 2. * GAP_BETWEEN_BRICKS_AND_SIDES;
+        (wall_positions.right_wall - wall_positions.left_wall) - 2.0 * GAP_BETWEEN_BRICKS_AND_SIDES;
     let bottom_edge_of_bricks = paddle_y + GAP_BETWEEN_PADDLE_AND_BRICKS;
     let total_height_of_bricks =
         wall_positions.top_wall - bottom_edge_of_bricks - GAP_BETWEEN_BRICKS_AND_CEILING;
@@ -245,4 +249,25 @@ fn update_wall_positions(
         wall_positions.bottom_wall,
         wall_positions.top_wall
     );
+}
+
+fn update_brick_size_based_on_window_size(
+    mut query: Query<(Entity, &mut Transform), With<Brick>>,
+    wall_positions: Res<WallPositions>,
+) {
+    let total_width_of_bricks =
+        (wall_positions.right_wall - wall_positions.left_wall) - 2.0 * GAP_BETWEEN_BRICKS_AND_SIDES;
+    let total_height_of_bricks = wall_positions.top_wall
+        - wall_positions.bottom_wall
+        - GAP_BETWEEN_BRICKS_AND_CEILING
+        - GAP_BETWEEN_PADDLE_AND_BRICKS;
+
+    let brick_size = Vec2::new(
+        total_width_of_bricks / 10.0 - GAP_BETWEEN_BRICKS,
+        total_height_of_bricks / 10.0 - GAP_BETWEEN_BRICKS,
+    );
+
+    for (_, mut transform) in query.iter_mut() {
+        transform.scale = brick_size.extend(1.0);
+    }
 }
